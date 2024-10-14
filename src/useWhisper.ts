@@ -66,6 +66,7 @@ export const useWhisper: UseWhisperHook = (config) => {
     whisperConfig,
     onDataAvailable: onDataAvailableCallback,
     onTranscribe: onTranscribeCallback,
+    customStream,
   } = {
     ...defaultConfig,
     ...config,
@@ -220,9 +221,15 @@ export const useWhisper: UseWhisperHook = (config) => {
       if (stream.current) {
         stream.current.getTracks().forEach((track) => track.stop())
       }
-      stream.current = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-      })
+
+      if (customStream) {
+        stream.current = customStream
+      } else {
+        stream.current = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        })
+      }
+
       if (!listener.current) {
         const { default: hark } = await import('hark')
         listener.current = hark(stream.current, {
